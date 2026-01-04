@@ -1,0 +1,27 @@
+{
+  "name": "DotbinTask",
+  "short_name": "DotbinTask",
+  "description": "A lightweight PWA for managing your Taskwarrior tasks",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#11191f",
+  "theme_color": "#1095c1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "screenshots": []
+}
+

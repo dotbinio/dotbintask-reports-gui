@@ -1,0 +1,57 @@
+/* Custom styles for DotbinTask */
+
+/* Force dark theme */
+:root:not([data-theme="dark"]) {
+  --primary: #1095c1;
+  --primary-hover: #0d7a9a;
+  --primary-focus: rgba(16, 149, 193, 0.125);
+  --background-color: #11191f;
+  --color: hsl(205, 20%, 94%);
+  --h1-color: hsl(205, 30%, 94%);
+  --h2-color: hsl(205, 25%, 90%);
+  --h3-color: hsl(205, 20%, 86%);
+  --card-background-color: #141e26;
+  --card-border-color: hsl(205, 20%, 20%);
+  --card-box-shadow: 0 0.125rem 1rem rgba(0, 0, 0, 0.06), 0 0.125rem 2rem rgba(0, 0, 0, 0.12);
+  --ins-color: #ff9800;
+  --del-color: #d32f2f;
+}
+
+/* Better table styling for tasks */
+table {
+  font-size: 0.9rem;
+}
+
+table thead th {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Responsive table on mobile */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.8rem;
+  }
+
+  table td,
+  table th {
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+/* Progress indicator */
+progress {
+  margin: 1rem auto;
+  display: block;
+}
+
+/* Better spacing for nav */
+nav ul li {
+  margin-bottom: 0;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
