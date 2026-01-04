@@ -1,0 +1,17 @@
+node_modules
+dist
+.env
+.env.local
+.env.production
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.git
+.gitignore
+README.md
+DEPLOYMENT.md
+QUICKSTART.md
+.vscode
+.idea
+*.md
+

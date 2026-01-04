@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-1. **Taskwarrior API Backend** must be running on `localhost:8080`
+1. **DotbinTask API Backend** must be running on `localhost:8080`
    ```bash
    cd ../dotbintask-api
    export TW_API_TOKENS="your-secret-token"
@@ -12,6 +12,21 @@
    ```
 
 2. **Node.js 18+** installed
+
+## Quick Start with Docker
+
+If you prefer Docker:
+
+```bash
+# Build and run
+docker build -t dotbintask-gui .
+docker run -d -p 3000:80 dotbintask-gui
+
+# Or use docker-compose
+docker-compose up -d
+```
+
+See [DOCKER.md](./DOCKER.md) for detailed Docker instructions.
 
 ## Setup & Run
 

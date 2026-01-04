@@ -63,6 +63,29 @@ npm run preview
 
 The built files will be in the `dist/` directory.
 
+## Docker Deployment
+
+### Quick Start with Docker
+
+```bash
+# Build the Docker image
+docker build -t dotbintask-gui:latest .
+
+# Run the container
+docker run -d -p 3000:80 --name dotbintask-gui dotbintask-gui:latest
+```
+
+Access at: **http://localhost:3000**
+
+### Full Stack with Docker Compose
+
+See [DOCKER.md](./DOCKER.md) for complete Docker deployment instructions including:
+- Standalone frontend deployment
+- Full stack setup (API + Frontend)
+- Production deployment
+- Kubernetes deployment
+- Troubleshooting
+
 ## Usage
 
 1. **Authentication**: On first launch, enter your API token. It will be stored securely in your browser's localStorage.
