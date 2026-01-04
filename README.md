@@ -1,5 +1,7 @@
 # DotbinTask
 
+> **⚠️ UNDER CONSTRUCTION**: This project is currently in active development and is **not ready for production use**. Features may change without notice. Use at your own risk.
+
 A lightweight Progressive Web App (PWA) for managing your Taskwarrior tasks. Built with Preact, PicoCSS, and Vite.
 
 ## Features
@@ -14,7 +16,7 @@ A lightweight Progressive Web App (PWA) for managing your Taskwarrior tasks. Bui
 ## Prerequisites
 
 - Node.js 18+ and npm
-- A running instance of the [Taskwarrior API](../dotbintask-api)
+- A running instance of the [DotbinTask API](https://github.com/dotbinio/dotbintask-api)
 - Valid API authentication token
 
 ## Installation
