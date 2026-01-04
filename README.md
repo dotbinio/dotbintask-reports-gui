@@ -67,6 +67,16 @@ The built files will be in the `dist/` directory.
 
 ### Quick Start with Docker
 
+**Using pre-built image from GitHub Container Registry:**
+
+```bash
+# Pull and run the latest image
+docker pull ghcr.io/dotbinio/dotbintask-reports-gui:latest
+docker run -d -p 3000:80 --name dotbintask-gui ghcr.io/dotbinio/dotbintask-reports-gui:latest
+```
+
+**Building from source:**
+
 ```bash
 # Build the Docker image
 docker build -t dotbintask-gui:latest .
@@ -76,6 +86,15 @@ docker run -d -p 3000:80 --name dotbintask-gui dotbintask-gui:latest
 ```
 
 Access at: **http://localhost:3000**
+
+### Available Image Tags
+
+Images are automatically built and pushed to GHCR on every commit:
+
+- `latest` - Latest stable version from master branch
+- `v1.0.0` - Specific version tags
+- `v1.0` - Minor version
+- `v1` - Major version
 
 ### Full Stack with Docker Compose
 

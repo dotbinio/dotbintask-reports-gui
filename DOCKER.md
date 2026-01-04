@@ -2,12 +2,36 @@
 
 This guide covers running DotbinTask frontend with Docker.
 
-## Quick Start
+## Pre-built Images
 
-### Option 1: Docker Run (Standalone)
+Pre-built images are available on GitHub Container Registry:
 
 ```bash
-# Build the image
+# Pull the latest image
+docker pull ghcr.io/dotbinio/dotbintask-reports-gui:latest
+
+# Pull specific version
+docker pull ghcr.io/dotbinio/dotbintask-reports-gui:v1.0.0
+```
+
+Images are automatically built on every push to master and on version tags.
+
+## Quick Start
+
+### Option 1: Use Pre-built Image
+
+```bash
+# Run the pre-built image from GHCR
+docker run -d \
+  --name dotbintask-gui \
+  -p 3000:80 \
+  ghcr.io/dotbinio/dotbintask-reports-gui:latest
+```
+
+### Option 2: Build from Source
+
+```bash
+# Build the image locally
 docker build -t dotbintask-gui:latest .
 
 # Run the container
@@ -71,7 +95,9 @@ services:
 
   # Frontend - DotbinTask GUI
   frontend:
-    build: ./dotbintask-reports-gui
+    image: ghcr.io/dotbinio/dotbintask-reports-gui:latest
+    # Or build from source:
+    # build: ./dotbintask-reports-gui
     ports:
       - "3000:80"
     depends_on:
