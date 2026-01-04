@@ -2,197 +2,180 @@
 
 > **⚠️ UNDER CONSTRUCTION**: This project is currently in active development and is **not ready for production use**. Features may change without notice. Use at your own risk.
 
-A lightweight Progressive Web App (PWA) for managing your Taskwarrior tasks. Built with Preact, PicoCSS, and Vite.
+A modern, lightweight Progressive Web App (PWA) for accessing your Taskwarrior tasks from anywhere.
 
-## Features
+![DotbinTask Screenshot](docs/screenshot.png)
+<!-- TODO: Add screenshot -->
 
-- 🔐 **Token Authentication** - Secure API token-based authentication
-- 📊 **Customizable Reports** - Choose which reports to display
-- 📱 **Mobile-Friendly** - Responsive design works on all devices
-- 🌙 **Dark Theme** - Beautiful dark theme by default
-- 📴 **Offline Support** - Read-only access to cached tasks without internet
-- ⚡ **Lightweight** - Preact keeps the bundle size minimal (~3KB)
+## About
 
-## Prerequisites
+[Taskwarrior](https://taskwarrior.org/) is a powerful CLI-based task management tool that follows the Unix philosophy - do one thing and do it well. It excels at managing tasks through the command line with extensive features and customization.
 
-- Node.js 18+ and npm
-- A running instance of the [DotbinTask API](https://github.com/dotbinio/dotbintask-api)
-- Valid API authentication token
+**DotbinTask** extends Taskwarrior to the web while maintaining the same philosophy. It doesn't replace the CLI or duplicate functionality - instead, it provides web-based access to your existing Taskwarrior setup, respecting your configurations and workflow.
 
-## Installation
+### Architecture
 
-```bash
-# Install dependencies
-npm install
+DotbinTask consists of two independent components, each focused on doing one thing well:
 
-# Copy and configure environment variables
-cp .env.example .env
-# Edit .env and set VITE_API_BASE_URL to your API server URL
+**1. [DotbinTask API](https://github.com/dotbinio/dotbintask-api)** - A headless REST API that wraps Taskwarrior CLI. Provides programmatic access for building UIs, mobile apps, or integrations.
+
+**2. DotbinTask GUI (This Project)** - A web-based PWA frontend. Report-centric interface that reads configurations directly from your `.taskrc` and displays tasks exactly as Taskwarrior would.
+
+## Quick Start
+
+
+### Full Stack Setup (API + Frontend)
+
+Create a `docker-compose.yml`:
+
+```yaml
+services:
+  # Backend API
+  api:
+    image: ghcr.io/dotbinio/dotbintask-api:latest
+    environment:
+      - TW_API_TOKENS=your-secret-token-here
+    volumes:
+      - ~/.task:/root/.task
+
+  # Frontend GUI
+  frontend:
+    image: ghcr.io/dotbinio/dotbintask-reports-gui:latest
+
+  # Nginx proxy - routes /api to backend, / to frontend
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+      - frontend
 ```
 
-## Development
+Create `nginx-proxy.conf`:
 
-```bash
-# Start development server
-npm run dev
+```nginx
+server {
+    listen 80;
+
+    # API routes
+    location /api/ {
+        proxy_pass http://api:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /health {
+        proxy_pass http://api:8080;
+    }
+
+    # Frontend routes
+    location / {
+        proxy_pass http://frontend:80;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
 ```
 
-The app will be available at `http://localhost:5173`
-
-### Configuration
-
-Create a `.env` file with:
-
-```env
-# For development with API on localhost:8080
-VITE_API_BASE_URL=http://localhost:8080
-
-# For production (same domain as API)
-# VITE_API_BASE_URL=/
-```
-
-## Building for Production
+Start everything:
 
 ```bash
-# Build the application
-npm run build
-
-# Preview the production build
-npm run preview
-```
-
-The built files will be in the `dist/` directory.
-
-## Docker Deployment
-
-### Quick Start with Docker
-
-**Using pre-built image from GitHub Container Registry:**
-
-```bash
-# Pull and run the latest image
-docker pull ghcr.io/dotbinio/dotbintask-reports-gui:latest
-docker run -d -p 3000:80 --name dotbintask-gui ghcr.io/dotbinio/dotbintask-reports-gui:latest
-```
-
-**Building from source:**
-
-```bash
-# Build the Docker image
-docker build -t dotbintask-gui:latest .
-
-# Run the container
-docker run -d -p 3000:80 --name dotbintask-gui dotbintask-gui:latest
+docker-compose up -d
 ```
 
 Access at: **http://localhost:3000**
 
-### Available Image Tags
+Enter your API token: `your-secret-token-here`
 
-Images are automatically built and pushed to GHCR on every commit:
+### Run UI Only with Docker
 
-- `latest` - Latest stable version from master branch
-- `v1.0.0` - Specific version tags
-- `v1.0` - Minor version
-- `v1` - Major version
+For standalone frontend (requires API running elsewhere):
 
-### Full Stack with Docker Compose
+```bash
+docker run -d \
+  -p 3000:80 \
+  --name dotbintask-gui \
+  ghcr.io/dotbinio/dotbintask-reports-gui:latest
+```
 
-See [DOCKER.md](./DOCKER.md) for complete Docker deployment instructions including:
-- Standalone frontend deployment
-- Full stack setup (API + Frontend)
-- Production deployment
-- Kubernetes deployment
-- Troubleshooting
+**Note**: Configure API URL in your browser when prompted, or see Full Stack Setup above for a complete solution.
 
-## Usage
+## Features
 
-1. **Authentication**: On first launch, enter your API token. It will be stored securely in your browser's localStorage.
+- 📊 **Report-based** - View all your Taskwarrior reports with configured columns and labels
+- 📱 **PWA** - Install as an app on desktop and mobile
+- 📴 **Offline mode** - Read-only access to cached tasks when API is unreachable
+- 🌙 **Dark theme** - Clean, modern interface
+- 🔐 **Secure** - Token-based authentication, stored locally in browser
 
-2. **Select Reports**: Choose which reports you want to display (e.g., "next", "active", "completed"). Your preferences are saved automatically.
+## Configuration
 
-3. **View Tasks**: Tasks from selected reports are displayed in clean, mobile-friendly tables with:
-   - Description with priority badges
-   - Project name
-   - Tags
-   - Urgency (color-coded)
-   - Due date
+### API URL
 
-4. **Offline Mode**: When offline, the app will display cached tasks from your last sync. An indicator shows when you're viewing cached data.
+By default, the app expects the API on the same domain. To use a different API server:
 
-## PWA Features
+1. Set the environment variable at build time:
+```bash
+docker build --build-arg VITE_API_BASE_URL=http://your-api-server:8080 -t dotbintask-gui .
+```
 
-### Installation
+2. For development, create a `.env` file:
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
 
-The app can be installed as a PWA on:
-- Desktop browsers (Chrome, Edge, Safari)
-- Mobile devices (iOS Safari, Android Chrome)
+## Documentation
 
-Look for the "Install" or "Add to Home Screen" option in your browser.
+- **[Development Guide](DEVELOPMENT.md)** - For developers (npm setup, project structure)
+- **[Docker deployment Guide](deploy/docker/README.md)** - Complete docker-compose file for running the frontend and API together
 
-### Offline Capability
+## Roadmap
 
-- Static assets are cached for offline use
-- API responses are cached with a Network-First strategy
-- Tasks data is stored in localStorage for offline read access
-- Automatic cache updates when online
+Phase 1 (Current): Read-only task viewing with reports
 
-## Project Structure
+Future phases:
+- Task creation and editing  
+- Mark tasks as done/start/stop
+- Advanced filtering and search
+- Alternative views (kanban, calendar)
+
+## Architecture Diagram
 
 ```
-dotbintask-reports-gui/
-├── src/
-│   ├── components/          # Preact components
-│   │   ├── AuthPrompt.tsx   # Authentication UI
-│   │   ├── ReportSelector.tsx
-│   │   ├── ReportView.tsx
-│   │   └── TaskList.tsx
-│   ├── services/            # Business logic
-│   │   ├── api.ts           # API client
-│   │   ├── auth.ts          # Token management
-│   │   └── storage.ts       # LocalStorage utilities
-│   ├── types/               # TypeScript types
-│   │   └── index.ts
-│   ├── styles/              # Custom CSS
-│   │   └── custom.css
-│   ├── app.tsx              # Main app component
-│   └── main.tsx             # Entry point
-├── public/
-│   ├── manifest.json        # PWA manifest
-│   └── icon-*.png           # PWA icons
-└── vite.config.ts           # Vite + PWA configuration
+┌─────────────────┐
+│   Browser       │
+│  (DotbinTask)   │
+└────────┬────────┘
+         │ HTTPS/REST
+         │
+┌────────▼────────┐
+│  DotbinTask API │
+│   (Go Server)   │
+└────────┬────────┘
+         │ CLI Commands
+         │
+┌────────▼────────┐
+│  Taskwarrior    │
+│   ~/.task/      │
+└─────────────────┘
 ```
+
+Each component follows Unix philosophy - focused, independent, composable.
 
 ## Tech Stack
 
-- **Framework**: [Preact](https://preactjs.com/) - 3KB React alternative
-- **CSS**: [PicoCSS](https://picocss.com/) - Minimal, classless CSS framework
-- **Build Tool**: [Vite](https://vitejs.dev/) - Fast, modern build tool
-- **PWA**: [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) - PWA support with Workbox
-
-## API Integration
-
-This frontend connects to the [Taskwarrior API](../dotbintask-api) backend. Make sure the API is running and accessible.
-
-### CORS Configuration
-
-If running the API on a different domain, ensure CORS is enabled:
-
-```bash
-export TW_API_CORS_ENABLED=true
-export TW_API_CORS_ORIGINS="http://localhost:5173"
-```
-
-## Future Enhancements (Phase 2+)
-
-- Task editing and updating
-- Create new tasks
-- Mark tasks as done/start/stop
-- Multiple tabs for different views
-- Search and filtering
-- Task detail modal with full information
+- [Preact](https://preactjs.com/) - 3KB React alternative
+- [PicoCSS](https://picocss.com/) - Minimal CSS framework
+- [Vite](https://vitejs.dev/) - Fast build tool
+- TypeScript for type safety
 
 ## License
 
-MIT License - see [LICENSE](../LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
+---
+
+Made with ❤️ for [Taskwarrior](https://taskwarrior.org/) users
