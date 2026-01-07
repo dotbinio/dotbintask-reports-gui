@@ -4,27 +4,28 @@ kind: Kustomization
 namespace: dotbintask
 
 resources:
-  - namespace.yaml
-  - persistentvolumeclaim.yaml
-  - deployment.yaml
-  - service.yaml
-  - ingress.yaml
+- namespace.yaml
+- persistentvolumeclaim.yaml
+- deployment.yaml
+- service.yaml
+- ingress.yaml
 
 secretGenerator:
-  - name: dotbintask-secret
-    literals:
-      - tokens=dev-token-12345
+- literals:
+  - tokens=dev-token-12345
+  name: dotbintask-secret
 
 images:
-  - name: dotbintask-api
-    newName: ghcr.io/dotbinio/dotbintask-api
-    newTag: latest
-  - name: dotbintask-frontend
-    newName: ghcr.io/dotbinio/dotbintask-reports-gui
-    newTag: latest
+- name: dotbintask-api
+  newName: ghcr.io/dotbinio/dotbintask-api
+  newTag: latest
+- name: dotbintask-frontend
+  newName: ghcr.io/dotbinio/dotbintask-reports-gui
+  newTag: latest
 
-commonLabels:
-  app: dotbintask
-  app.kubernetes.io/name: dotbintask
-  app.kubernetes.io/instance: dotbintask
-
+labels:
+- includeSelectors: true
+  pairs:
+    app: dotbintask
+    app.kubernetes.io/instance: dotbintask
+    app.kubernetes.io/name: dotbintask

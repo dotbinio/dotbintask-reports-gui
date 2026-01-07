@@ -2,17 +2,22 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: dotbintask
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
-  ingressClassName: nginx
   rules:
-  - host: dotbintask.example.com
+  - host: dotbintask.local
     http:
       paths:
       # API routes
-      - path: /api(/|$)(.*)
-        pathType: ImplementationSpecific
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: dotbintask
+            port:
+              number: 8080
+      # Swagger routes
+      - path: /swagger
+        pathType: Prefix
         backend:
           service:
             name: dotbintask
