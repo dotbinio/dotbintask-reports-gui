@@ -13,8 +13,6 @@ RUN npm ci
 COPY . .
 
 # Build the application
-# Set API base URL to / for production (same domain as API)
-ENV VITE_API_BASE_URL=/
 RUN npm run build
 
 # Stage 2: Serve with nginx
