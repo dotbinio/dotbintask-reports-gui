@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
-import type { Task } from '../types';
+import type { Task, Report } from '../types';
 import { apiClient } from '../services/api';
 import { TaskList } from './TaskList';
 
@@ -13,16 +13,24 @@ export function ReportView({ reportName, reportLabel }: ReportViewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOffline, setIsOffline] = useState(false);
+  const [reportConfig, setReportConfig] = useState<Report | null>(null);
 
   useEffect(() => {
-    loadTasks();
+    loadReportAndTasks();
   }, [reportName]);
 
-  const loadTasks = async () => {
+  const loadReportAndTasks = async () => {
     try {
       setLoading(true);
       setError(null);
       setIsOffline(false);
+      
+      // Load report configuration
+      const reports = await apiClient.getReports();
+      const report = reports.find(r => r.name === reportName);
+      setReportConfig(report || null);
+      
+      // Load tasks
       const result = await apiClient.getReportTasks(reportName);
       setTasks(result.tasks);
       setIsOffline(result.fromCache);
@@ -75,7 +83,13 @@ export function ReportView({ reportName, reportLabel }: ReportViewProps) {
         </div>
       )}
 
-      {!loading && !error && <TaskList tasks={tasks} />}
+      {!loading && !error && (
+        <TaskList 
+          tasks={tasks} 
+          columns={reportConfig?.columns}
+          labels={reportConfig?.labels}
+        />
+      )}
 
       {!loading && isOffline && tasks.length > 0 && (
         <footer>

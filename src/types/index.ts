@@ -1,6 +1,7 @@
 // TypeScript types for Taskwarrior API
 
 export interface Task {
+  id?: number;
   uuid: string;
   description: string;
   status: 'pending' | 'completed' | 'deleted' | 'waiting';
@@ -29,9 +30,9 @@ export interface Report {
   name: string;
   label?: string;
   description?: string;
-  columns?: string[];
-  labels?: string[];
-  sort?: string[];
+  columns?: string;
+  labels?: string;
+  sort?: string;
   filter?: string;
 }
 

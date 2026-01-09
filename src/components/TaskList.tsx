@@ -2,9 +2,11 @@ import type { Task } from '../types';
 
 interface TaskListProps {
   tasks: Task[];
+  columns?: string;
+  labels?: string;
 }
 
-export function TaskList({ tasks }: TaskListProps) {
+export function TaskList({ tasks, columns, labels }: TaskListProps) {
   if (tasks.length === 0) {
     return (
       <div style={{ padding: '1rem', textAlign: 'center' }}>
@@ -56,39 +58,93 @@ export function TaskList({ tasks }: TaskListProps) {
     );
   };
 
+  // Parse columns and labels from comma-separated strings
+  const columnNames = columns ? columns.split(',').map(c => c.trim()) : ['description', 'project', 'tags', 'urgency', 'due'];
+  const columnLabels = labels ? labels.split(',').map(l => l.trim()) : ['Description', 'Project', 'Tags', 'Urgency', 'Due'];
+
+  // Get value from task based on column name
+  const getColumnValue = (task: Task, column: string) => {
+    const value = task[column as keyof Task];
+    
+    // Handle special rendering for certain columns
+    switch (column) {
+      case 'id':
+        return task.id !== undefined ? task.id : (task.uuid ? task.uuid.substring(0, 8) : '-');
+      
+      case 'description':
+        return (
+          <>
+            {task.description}
+            {task.priority && getPriorityBadge(task.priority)}
+          </>
+        );
+      
+      case 'project':
+        return task.project || '-';
+      
+      case 'tags':
+        return task.tags && task.tags.length > 0 ? (
+          <small>{task.tags.join(', ')}</small>
+        ) : (
+          '-'
+        );
+      
+      case 'urgency':
+        return (
+          <span style={{ color: getUrgencyColor(task.urgency) }}>
+            {task.urgency?.toFixed(1) || '-'}
+          </span>
+        );
+      
+      case 'due':
+      case 'entry':
+      case 'modified':
+      case 'start':
+      case 'end':
+      case 'wait':
+      case 'scheduled':
+        return formatDate(value as string);
+      
+      case 'priority':
+        return task.priority || '-';
+      
+      case 'status':
+        return task.status || '-';
+      
+      case 'depends':
+        return task.depends && task.depends.length > 0 ? (
+          <small>{task.depends.join(', ')}</small>
+        ) : (
+          '-'
+        );
+      
+      case 'recur':
+        return task.recur || '-';
+      
+      default:
+        // For any other columns, try to display the value as-is
+        if (value === null || value === undefined) return '-';
+        if (Array.isArray(value)) return value.join(', ') || '-';
+        return String(value);
+    }
+  };
+
   return (
     <div>
       <table role="grid">
         <thead>
           <tr>
-            <th>Description</th>
-            <th>Project</th>
-            <th>Tags</th>
-            <th>Urgency</th>
-            <th>Due</th>
+            {columnLabels.map((label, index) => (
+              <th key={index}>{label}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {tasks.map((task) => (
             <tr key={task.uuid}>
-              <td>
-                {task.description}
-                {getPriorityBadge(task.priority)}
-              </td>
-              <td>{task.project || '-'}</td>
-              <td>
-                {task.tags && task.tags.length > 0 ? (
-                  <small>{task.tags.join(', ')}</small>
-                ) : (
-                  '-'
-                )}
-              </td>
-              <td>
-                <span style={{ color: getUrgencyColor(task.urgency) }}>
-                  {task.urgency?.toFixed(1) || '-'}
-                </span>
-              </td>
-              <td>{formatDate(task.due)}</td>
+              {columnNames.map((column, index) => (
+                <td key={index}>{getColumnValue(task, column)}</td>
+              ))}
             </tr>
           ))}
         </tbody>
