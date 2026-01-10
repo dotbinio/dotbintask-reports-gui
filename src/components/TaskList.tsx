@@ -75,7 +75,7 @@ export function TaskList({ tasks, columns, labels }: TaskListProps) {
     // Handle special rendering for certain columns
     switch (baseColumn) {
       case 'id':
-        return task.id !== undefined ? task.id : (task.uuid ? task.uuid.substring(0, 8) : '-');
+        return task.id !== undefined ? task.id : '-';
       
       case 'description':
         return (
