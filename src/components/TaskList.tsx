@@ -27,30 +27,32 @@ export function TaskList({ tasks, columns, labels }: TaskListProps) {
 
   const getUrgencyColor = (urgency?: number) => {
     if (!urgency) return '';
-    if (urgency >= 10) return 'var(--del-color, #d32f2f)';
-    if (urgency >= 5) return 'var(--ins-color, #ff9800)';
-    return '';
+    if (urgency >= 10) return '#ef4444';
+    if (urgency >= 5) return '#f59e0b';
+    return '#10b981';
   };
 
   const getPriorityBadge = (priority?: string) => {
     if (!priority) return null;
     
     const colors: Record<string, string> = {
-      H: 'var(--del-color, #d32f2f)',
-      M: 'var(--ins-color, #ff9800)',
-      L: 'var(--primary, #1095c1)',
+      H: '#ef4444',
+      M: '#f59e0b',
+      L: '#3b82f6',
     };
 
     return (
       <span 
         style={{ 
-          padding: '0.15rem 0.4rem',
+          padding: '0.15rem 0.5rem',
           borderRadius: '0.25rem',
-          fontSize: '0.75rem',
-          fontWeight: 'bold',
+          fontSize: '0.7rem',
+          fontWeight: 600,
+          letterSpacing: '0.025em',
           backgroundColor: colors[priority] || '',
           color: 'white',
           marginLeft: '0.5rem',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
         }}
       >
         {priority}
@@ -91,7 +93,11 @@ export function TaskList({ tasks, columns, labels }: TaskListProps) {
       
       case 'urgency':
         return (
-          <span style={{ color: getUrgencyColor(task.urgency) }}>
+          <span style={{ 
+            color: getUrgencyColor(task.urgency),
+            fontWeight: 600,
+            fontSize: '0.8125rem'
+          }}>
             {task.urgency?.toFixed(1) || '-'}
           </span>
         );

@@ -24,18 +24,25 @@ export function ReportTile({
 
   return (
     <article className={`report-tile ${width === 'full' ? 'tile-full' : 'tile-half'}`}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0, textTransform: 'capitalize' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <h3 style={{ margin: 0, textTransform: 'capitalize', fontSize: '1rem' }}>
           {displayName}
           {taskCount > 0 && !loading && (
-            <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem', fontWeight: 'normal' }}>
-              ({taskCount} {taskCount === 1 ? 'task' : 'tasks'})
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', fontWeight: 'normal', opacity: 0.8 }}>
+              ({taskCount})
             </span>
           )}
         </h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {isOffline && (
-            <small style={{ color: 'var(--ins-color, #ff9800)' }}>
+            <small style={{ 
+              color: '#f59e0b', 
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem'
+            }}>
               ⚠️ Offline
             </small>
           )}

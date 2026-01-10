@@ -162,7 +162,7 @@ export function App() {
   // Main application view
   return (
     <main class="container">
-      <nav style={{ marginTop: '1rem', marginBottom: '2rem' }}>
+      <nav>
         <ul>
           <li>
             <h1 style={{ margin: 0 }}>DotbinTask</h1>
@@ -186,7 +186,7 @@ export function App() {
                       onClick={() => setIsEditMode(false)} 
                       class="secondary"
                     >
-                      Done Editing
+                      Done
                     </button>
                   </li>
                 </>
@@ -230,7 +230,7 @@ export function App() {
         <>
           {layoutConfig.tiles.length === 0 && (
             <article>
-              <p>
+              <p style={{ margin: '0.5rem 0' }}>
                 <em>No reports configured. Click "Edit Layout" and then "Add Report" to get started.</em>
               </p>
             </article>
