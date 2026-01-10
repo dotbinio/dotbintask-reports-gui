@@ -11,7 +11,7 @@ interface ReportViewProps {
   onOfflineChange?: (offline: boolean) => void;
 }
 
-export function ReportView({ reportName, reportLabel, onTaskCountChange, onLoadingChange, onOfflineChange }: ReportViewProps) {
+export function ReportView({ reportName, onTaskCountChange, onLoadingChange, onOfflineChange }: ReportViewProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,8 +63,6 @@ export function ReportView({ reportName, reportLabel, onTaskCountChange, onLoadi
       setLoading(false);
     }
   };
-
-  const displayName = reportLabel || reportName;
 
   return (
     <>

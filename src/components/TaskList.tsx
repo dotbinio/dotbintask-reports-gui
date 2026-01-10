@@ -66,10 +66,14 @@ export function TaskList({ tasks, columns, labels }: TaskListProps) {
 
   // Get value from task based on column name
   const getColumnValue = (task: Task, column: string) => {
-    const value = task[column as keyof Task];
+    // Handle column modifiers (e.g., description.count, due.relative)
+    // Extract the base column name (before any dot notation)
+    const baseColumn = column.split('.')[0];
+    
+    const value = task[column as keyof Task] || task[baseColumn as keyof Task];
     
     // Handle special rendering for certain columns
-    switch (column) {
+    switch (baseColumn) {
       case 'id':
         return task.id !== undefined ? task.id : (task.uuid ? task.uuid.substring(0, 8) : '-');
       
@@ -109,7 +113,8 @@ export function TaskList({ tasks, columns, labels }: TaskListProps) {
       case 'end':
       case 'wait':
       case 'scheduled':
-        return formatDate(value as string);
+        // If the column has a modifier (like due.relative), we still format the base date value
+        return formatDate(task[baseColumn as keyof Task] as string);
       
       case 'priority':
         return task.priority || '-';

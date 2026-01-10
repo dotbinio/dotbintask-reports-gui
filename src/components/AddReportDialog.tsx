@@ -37,7 +37,6 @@ export function AddReportDialog({
           <header>
             <button 
               aria-label="Close" 
-              rel="prev" 
               onClick={onCancel}
               style={{ float: 'right' }}
             />
@@ -58,7 +57,6 @@ export function AddReportDialog({
         <header>
           <button 
             aria-label="Close" 
-            rel="prev" 
             onClick={onCancel}
             style={{ float: 'right' }}
           />
