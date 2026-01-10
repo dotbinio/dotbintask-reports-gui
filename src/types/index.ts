@@ -91,6 +91,15 @@ export interface ReportPreferences {
   selectedReports: string[];
 }
 
+export interface TileConfig {
+  reportName: string;
+  width: 'full' | 'half';
+}
+
+export interface LayoutConfig {
+  tiles: TileConfig[];
+}
+
 export interface TasksResult {
   tasks: Task[];
   fromCache: boolean;

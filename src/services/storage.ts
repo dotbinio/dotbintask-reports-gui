@@ -1,6 +1,9 @@
 // Storage service for preferences and offline data
 
+import type { LayoutConfig, Report } from '../types';
+
 const REPORT_PREFERENCES_KEY = 'taskwarrior_report_preferences';
+const LAYOUT_CONFIG_KEY = 'taskwarrior_layout_config';
 const CACHED_TASKS_PREFIX = 'taskwarrior_cached_tasks_';
 const CACHED_REPORTS_KEY = 'taskwarrior_cached_reports';
 
@@ -30,6 +33,58 @@ export const storageService = {
    */
   setReportPreferences(preferences: ReportPreferences): void {
     localStorage.setItem(REPORT_PREFERENCES_KEY, JSON.stringify(preferences));
+  },
+
+  /**
+   * Get layout configuration from localStorage
+   * Migrates old preferences to new layout format if needed
+   */
+  getLayoutConfig(availableReports?: Report[]): LayoutConfig {
+    const stored = localStorage.getItem(LAYOUT_CONFIG_KEY);
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        console.error('Failed to parse layout config', e);
+      }
+    }
+    
+    // Try to migrate from old preferences
+    const oldPrefs = localStorage.getItem(REPORT_PREFERENCES_KEY);
+    if (oldPrefs) {
+      try {
+        const prefs = JSON.parse(oldPrefs);
+        if (prefs.selectedReports && Array.isArray(prefs.selectedReports)) {
+          return {
+            tiles: prefs.selectedReports.map((reportName: string) => ({
+              reportName,
+              width: 'half' as const,
+            })),
+          };
+        }
+      } catch (e) {
+        console.error('Failed to migrate old preferences', e);
+      }
+    }
+    
+    // Default layout: 'next' and 'active' if available
+    const defaultReports = availableReports 
+      ? availableReports.filter(r => ['next', 'active'].includes(r.name)).map(r => r.name)
+      : ['next', 'active'];
+    
+    return {
+      tiles: defaultReports.map(reportName => ({
+        reportName,
+        width: 'half' as const,
+      })),
+    };
+  },
+
+  /**
+   * Save layout configuration to localStorage
+   */
+  setLayoutConfig(config: LayoutConfig): void {
+    localStorage.setItem(LAYOUT_CONFIG_KEY, JSON.stringify(config));
   },
 
   /**

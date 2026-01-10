@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'preact/hooks';
 import { AuthPrompt } from './components/AuthPrompt';
-import { ReportSelector } from './components/ReportSelector';
-import { ReportView } from './components/ReportView';
+import { ReportTile } from './components/ReportTile';
+import { AddReportDialog } from './components/AddReportDialog';
 import { authService } from './services/auth';
 import { storageService } from './services/storage';
 import { apiClient } from './services/api';
-import type { Report } from './types';
+import type { Report, LayoutConfig } from './types';
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -14,7 +14,9 @@ export function App() {
   const [authenticating, setAuthenticating] = useState(false);
   
   const [reports, setReports] = useState<Report[]>([]);
-  const [selectedReports, setSelectedReports] = useState<string[]>([]);
+  const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>({ tiles: [] });
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const [loadingReports, setLoadingReports] = useState(false);
   const [reportsError, setReportsError] = useState<string | null>(null);
 
@@ -48,24 +50,11 @@ export function App() {
     checkAuth();
   }, []);
 
-  // Load report preferences when reports are loaded
+  // Load layout preferences when reports are loaded
   useEffect(() => {
     if (reports.length > 0) {
-      const preferences = storageService.getReportPreferences();
-      // Filter to only include reports that actually exist
-      const validSelected = preferences.selectedReports.filter(name =>
-        reports.some(r => r.name === name)
-      );
-      
-      if (validSelected.length === 0) {
-        // Default to 'next' and 'active' if they exist
-        const defaults = reports
-          .filter(r => ['next', 'active'].includes(r.name))
-          .map(r => r.name);
-        setSelectedReports(defaults.length > 0 ? defaults : [reports[0]?.name || '']);
-      } else {
-        setSelectedReports(validSelected);
-      }
+      const config = storageService.getLayoutConfig(reports);
+      setLayoutConfig(config);
     }
   }, [reports]);
 
@@ -121,9 +110,21 @@ export function App() {
     }
   };
 
-  const handleReportSelectionChange = (newSelection: string[]) => {
-    setSelectedReports(newSelection);
-    storageService.setReportPreferences({ selectedReports: newSelection });
+  const handleAddReport = (reportName: string, width: 'full' | 'half') => {
+    const newConfig: LayoutConfig = {
+      tiles: [...layoutConfig.tiles, { reportName, width }],
+    };
+    setLayoutConfig(newConfig);
+    storageService.setLayoutConfig(newConfig);
+    setShowAddDialog(false);
+  };
+
+  const handleRemoveTile = (index: number) => {
+    const newConfig: LayoutConfig = {
+      tiles: layoutConfig.tiles.filter((_, i) => i !== index),
+    };
+    setLayoutConfig(newConfig);
+    storageService.setLayoutConfig(newConfig);
   };
 
   const handleLogout = () => {
@@ -131,7 +132,7 @@ export function App() {
     storageService.clearCache();
     setIsAuthenticated(false);
     setReports([]);
-    setSelectedReports([]);
+    setLayoutConfig({ tiles: [] });
     setAuthError(null);
   };
 
@@ -168,6 +169,39 @@ export function App() {
           </li>
         </ul>
         <ul>
+          {!loadingReports && !reportsError && (
+            <>
+              {isEditMode ? (
+                <>
+                  <li>
+                    <button 
+                      onClick={() => setShowAddDialog(true)} 
+                      class="contrast"
+                    >
+                      + Add Report
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      onClick={() => setIsEditMode(false)} 
+                      class="secondary"
+                    >
+                      Done Editing
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <li>
+                  <button 
+                    onClick={() => setIsEditMode(true)} 
+                    class="secondary outline"
+                  >
+                    Edit Layout
+                  </button>
+                </li>
+              )}
+            </>
+          )}
           <li>
             <button onClick={handleLogout} class="secondary outline">
               Logout
@@ -194,30 +228,38 @@ export function App() {
 
       {!loadingReports && !reportsError && reports.length > 0 && (
         <>
-          <ReportSelector
-            reports={reports}
-            selectedReports={selectedReports}
-            onSelectionChange={handleReportSelectionChange}
-          />
-
-          {selectedReports.length === 0 && (
+          {layoutConfig.tiles.length === 0 && (
             <article>
               <p>
-                <em>Select at least one report to display tasks</em>
+                <em>No reports configured. Click "Edit Layout" and then "Add Report" to get started.</em>
               </p>
             </article>
           )}
 
-          {selectedReports.map((reportName) => {
-            const report = reports.find((r) => r.name === reportName);
-            return (
-              <ReportView
-                key={reportName}
-                reportName={reportName}
-                reportLabel={report?.label}
-              />
-            );
-          })}
+          <div className="tile-grid">
+            {layoutConfig.tiles.map((tile, index) => {
+              const report = reports.find(r => r.name === tile.reportName);
+              return (
+                <ReportTile
+                  key={`${tile.reportName}-${index}`}
+                  reportName={tile.reportName}
+                  reportLabel={report?.label}
+                  width={tile.width}
+                  showRemove={isEditMode}
+                  onRemove={() => handleRemoveTile(index)}
+                />
+              );
+            })}
+          </div>
+
+          {showAddDialog && (
+            <AddReportDialog
+              reports={reports}
+              existingReports={layoutConfig.tiles.map(t => t.reportName)}
+              onAdd={handleAddReport}
+              onCancel={() => setShowAddDialog(false)}
+            />
+          )}
         </>
       )}
     </main>

@@ -6,9 +6,12 @@ import { TaskList } from './TaskList';
 interface ReportViewProps {
   reportName: string;
   reportLabel?: string;
+  onTaskCountChange?: (count: number) => void;
+  onLoadingChange?: (loading: boolean) => void;
+  onOfflineChange?: (offline: boolean) => void;
 }
 
-export function ReportView({ reportName, reportLabel }: ReportViewProps) {
+export function ReportView({ reportName, reportLabel, onTaskCountChange, onLoadingChange, onOfflineChange }: ReportViewProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +21,19 @@ export function ReportView({ reportName, reportLabel }: ReportViewProps) {
   useEffect(() => {
     loadReportAndTasks();
   }, [reportName]);
+
+  // Notify parent of state changes
+  useEffect(() => {
+    onTaskCountChange?.(tasks.length);
+  }, [tasks.length, onTaskCountChange]);
+
+  useEffect(() => {
+    onLoadingChange?.(loading);
+  }, [loading, onLoadingChange]);
+
+  useEffect(() => {
+    onOfflineChange?.(isOffline);
+  }, [isOffline, onOfflineChange]);
 
   const loadReportAndTasks = async () => {
     try {
@@ -51,23 +67,7 @@ export function ReportView({ reportName, reportLabel }: ReportViewProps) {
   const displayName = reportLabel || reportName;
 
   return (
-    <article style={{ marginBottom: '2rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0, textTransform: 'capitalize' }}>
-          {displayName}
-          {tasks.length > 0 && !loading && (
-            <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem', fontWeight: 'normal' }}>
-              ({tasks.length} {tasks.length === 1 ? 'task' : 'tasks'})
-            </span>
-          )}
-        </h3>
-        {isOffline && (
-          <small style={{ color: 'var(--ins-color, #ff9800)' }}>
-            ⚠️ Offline mode
-          </small>
-        )}
-      </header>
-
+    <>
       {loading && (
         <div style={{ padding: '1rem', textAlign: 'center' }}>
           <progress />
@@ -96,7 +96,7 @@ export function ReportView({ reportName, reportLabel }: ReportViewProps) {
           <small>Showing cached data from last sync</small>
         </footer>
       )}
-    </article>
+    </>
   );
 }
 

@@ -55,3 +55,62 @@ nav ul li {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Tile Grid Layout */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.report-tile {
+  margin-bottom: 0;
+}
+
+.tile-full {
+  grid-column: 1 / -1;
+}
+
+.tile-half {
+  grid-column: span 1;
+}
+
+/* Tile content with fixed height and scrolling */
+.tile-content {
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Remove button styling */
+.tile-remove-btn {
+  min-width: auto !important;
+  padding: 0.25rem 0.5rem !important;
+}
+
+/* Responsive: Stack tiles on mobile */
+@media (max-width: 768px) {
+  .tile-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .tile-full,
+  .tile-half {
+    grid-column: 1;
+  }
+
+  .tile-content {
+    max-height: 400px;
+  }
+}
+
+/* Dialog backdrop styling */
+dialog {
+  border-color: var(--card-border-color);
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
