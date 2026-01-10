@@ -61,8 +61,64 @@ export function TaskList({ tasks, columns, labels }: TaskListProps) {
   };
 
   // Parse columns and labels from comma-separated strings
-  const columnNames = columns ? columns.split(',').map(c => c.trim()) : ['description', 'project', 'tags', 'urgency', 'due'];
-  const columnLabels = labels ? labels.split(',').map(l => l.trim()) : ['Description', 'Project', 'Tags', 'Urgency', 'Due'];
+  const allColumnNames = columns ? columns.split(',').map(c => c.trim()) : ['description', 'project', 'tags', 'urgency', 'due'];
+  const allColumnLabels = labels ? labels.split(',').map(l => l.trim()) : ['Description', 'Project', 'Tags', 'Urgency', 'Due'];
+
+  // Helper to check if a value is empty/meaningless
+  const isEmptyValue = (value: any): boolean => {
+    if (value === null || value === undefined || value === '' || value === '-') return true;
+    if (Array.isArray(value) && value.length === 0) return true;
+    return false;
+  };
+
+  // Helper to check if column has any non-empty value across all tasks
+  const hasColumnValue = (column: string): boolean => {
+    const baseColumn = column.split('.')[0];
+    
+    return tasks.some(task => {
+      const value = task[column as keyof Task] || task[baseColumn as keyof Task];
+      
+      // Special handling for specific columns
+      switch (baseColumn) {
+        case 'id':
+          return task.id !== undefined;
+        case 'description':
+          return !!task.description;
+        case 'project':
+          return !!task.project;
+        case 'tags':
+          return task.tags && task.tags.length > 0;
+        case 'urgency':
+          return task.urgency !== undefined && task.urgency !== null;
+        case 'priority':
+          return !!task.priority;
+        case 'status':
+          return !!task.status;
+        case 'depends':
+          return task.depends && task.depends.length > 0;
+        case 'due':
+        case 'entry':
+        case 'modified':
+        case 'start':
+        case 'end':
+        case 'wait':
+        case 'scheduled':
+        case 'recur':
+          return !isEmptyValue(task[baseColumn as keyof Task]);
+        default:
+          return !isEmptyValue(value);
+      }
+    });
+  };
+
+  // Filter columns to only show those with at least one non-empty value
+  const visibleColumnIndices = allColumnNames
+    .map((column, index) => ({ column, index }))
+    .filter(({ column }) => hasColumnValue(column))
+    .map(({ index }) => index);
+
+  const columnNames = visibleColumnIndices.map(i => allColumnNames[i]);
+  const columnLabels = visibleColumnIndices.map(i => allColumnLabels[i]);
 
   // Get value from task based on column name
   const getColumnValue = (task: Task, column: string) => {
